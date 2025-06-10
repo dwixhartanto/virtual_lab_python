@@ -25,7 +25,7 @@ with col1:
 
     kecepatan_a = st.slider('🔵 Kecepatan Si A (km/jam)', 1, 100, 40)
     kecepatan_b = st.slider('🟠 Kecepatan Si B (km/jam)', 1, 100, 50)
-    jarak_total = st.slider('📏 Jarak Semarang ↔ Pekalongan (km)', 10, 200, 100)
+    jarak_total = st.slider('📏 Jarak Kota A ke Kota B (km)', 10, 200, 100)
 
     if 'mulai' not in st.session_state:
         st.session_state.mulai = False
