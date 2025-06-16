@@ -41,14 +41,12 @@ if simulate_button:
     time_points = np.linspace(0, duration, 500) # Titik-titik waktu untuk grafik
 
     # Posisi awal kendaraan
-    # Asumsi kendaraan 1 mulai dari 0, kendaraan 2 mulai dari initial_distance
+    # Asumsi kendaraan 1 mulai dari 0
     pos_veh1_at_t0 = 0.0
-    if scenario == "Kendaraan Bertemu":
-        pos_veh2_at_t0 = initial_distance
-    else: # Menyusul, kendaraan 2 di depan
-        pos_veh2_at_t0 = initial_distance
 
-    # Menghitung posisi kendaraan pada setiap waktu
+    # Kendaraan 2 dimulai dari initial_distance (baik menyusul maupun bertemu)
+    pos_veh2_at_t0 = initial_distance
+
     positions_veh1 = []
     positions_veh2 = []
 
@@ -65,9 +63,13 @@ if simulate_button:
         effective_t2 = max(0, t - start_time2)
 
         pos1 = pos_veh1_at_t0 + (v1 * effective_t1)
+
+        # Bagian ini yang krusial diperbaiki
         if scenario == "Kendaraan Bertemu":
-            pos2 = pos_veh2_at_t0 - (v2 * effective_t2) # Bertemu, kendaraan 2 bergerak mundur dari titik initial_distance
-        else: # Menyusul
+            # Kendaraan 2 bergerak dari initial_distance menuju 0 (mundur)
+            pos2 = pos_veh2_at_t0 - (v2 * effective_t2)
+        else: # Skenario "Kendaraan Menyusul"
+            # Kendaraan 2 bergerak dari initial_distance ke arah yang sama dengan Kendaraan 1 (maju)
             pos2 = pos_veh2_at_t0 + (v2 * effective_t2)
 
         positions_veh1.append(pos1)
@@ -76,19 +78,35 @@ if simulate_button:
         # Deteksi event
         if scenario == "Kendaraan Menyusul":
             # Kendaraan 1 menyusul kendaraan 2 jika pos1 >= pos2 dan belum pernah menyusul
-            if pos1 >= pos2 and time_of_event is None and t > 0:
-                time_of_event = t
-                distance_at_event = pos1
+            # Juga pastikan Kendaraan 1 lebih cepat dari Kendaraan 2 untuk skenario ini,
+            # atau setidaknya berangkat duluan sehingga bisa menyusul.
+            if v1 > v2 or start_time1 < start_time2: # Cek kondisi potensial menyusul
+                 if pos1 >= pos2 and time_of_event is None and t > 0:
+                    # Pastikan Kendaraan 1 awalnya di belakang atau sama posisi
+                    # agar ini bukan deteksi yang salah di awal simulasi.
+                    if (pos_veh1_at_t0 + (v1 * max(0, time_points[0] - start_time1))) < \
+                       (pos_veh2_at_t0 + (v2 * max(0, time_points[0] - start_time2))):
+                        time_of_event = t
+                        distance_at_event = pos1
         elif scenario == "Kendaraan Bertemu":
-            # Kendaraan bertemu jika pos1 >= pos2 dan belum pernah bertemu (atau jarak antara mereka sangat kecil)
-            current_diff = abs(pos1 - pos2)
-            if current_diff < min_diff:
-                min_diff = current_diff
-                best_time_idx = i
-            
-            if min_diff < 0.1 and time_of_event is None: # Ambil jika beda posisi sangat kecil
-                 time_of_event = time_points[best_time_idx]
-                 distance_at_event = (positions_veh1[best_time_idx] + positions_veh2[best_time_idx]) / 2
+            # Kendaraan bertemu jika posisi mereka berpotongan (atau jarak sangat dekat)
+            # Karena mereka bergerak berlawanan, titik perpotongan adalah pertemuan
+            if time_of_event is None: # Hanya deteksi sekali
+                current_diff = abs(pos1 - pos2)
+                # Jika ada persilangan atau jarak sangat kecil
+                if i > 0 and ((positions_veh1[i-1] < positions_veh2[i-1] and pos1 >= pos2) or \
+                              (positions_veh1[i-1] > positions_veh2[i-1] and pos1 <= pos2)):
+                    time_of_event = t
+                    distance_at_event = (pos1 + pos2) / 2 # Ambil rata-rata posisi saat bertemu
+                    
+                # Alternatif: Cari titik terdekat jika tidak ada persilangan sempurna
+                if current_diff < min_diff:
+                    min_diff = current_diff
+                    best_time_idx = i
+                # Jika sudah melewati titik terdekat dan belum terdeteksi pertemuan (misal karena langkah waktu besar)
+                if i > best_time_idx + 10 and time_of_event is None and min_diff < 1.0: # Jika jaraknya sudah sangat dekat
+                    time_of_event = time_points[best_time_idx]
+                    distance_at_event = (positions_veh1[best_time_idx] + positions_veh2[best_time_idx]) / 2
 
 
     # --- Visualisasi ---
@@ -128,17 +146,19 @@ if simulate_button:
         st.markdown(r"""
         * **Konsep Dasar:** Jarak = Kecepatan $\times$ Waktu.
         * **Kasus Menyusul:**
-            * Misalkan $\text{t}$ adalah waktu saat menyusul.
-            * Jarak yang ditempuh Kendaraan 1: $\text{Jarak}_1 = \text{v}_1 \times (\text{t} - \text{start\_time}_1)$
-            * Jarak yang ditempuh Kendaraan 2: $\text{Jarak}_2 = \text{v}_2 \times (\text{t} - \text{start\_time}_2)$
-            * Saat menyusul, posisi mereka sama. Jadi, jika Kendaraan 1 mulai dari 0 dan Kendaraan 2 mulai dari jarak awal, maka $\text{Jarak}_1 = \text{initial\_distance} + \text{Jarak}_2$.
-            * Coba substitusikan dan selesaikan untuk $\text{t}$!
+            * Misalkan $t$ adalah waktu saat menyusul (dihitung dari $t=0$).
+            * Posisi Kendaraan 1: $P_1(t) = v_1 \times \max(0, t - \text{start\_time}_1)$
+            * Posisi Kendaraan 2: $P_2(t) = \text{initial\_distance} + (v_2 \times \max(0, t - \text{start\_time}_2))$
+            * Saat menyusul, $P_1(t) = P_2(t)$.
+            * $v_1 \times (t - \text{start\_time}_1) = \text{initial\_distance} + v_2 \times (t - \text{start\_time}_2)$
+            * Coba substitusikan dan selesaikan untuk $t$!
         * **Kasus Bertemu:**
-            * Misalkan $\text{t}$ adalah waktu saat bertemu.
-            * Jarak yang ditempuh Kendaraan 1: $\text{Jarak}_1 = \text{v}_1 \times (\text{t} - \text{start\_time}_1)$
-            * Jarak yang ditempuh Kendaraan 2: $\text{Jarak}_2 = \text{v}_2 \times (\text{t} - \text{start\_time}_2)$
-            * Saat bertemu, total jarak yang mereka tempuh (dari titik awal masing-masing hingga titik pertemuan) adalah jarak awal antara mereka. Jadi, $\text{Jarak}_1 + \text{Jarak}_2 = \text{initial\_distance}$.
-            * Coba substitusikan dan selesaikan untuk $\text{t}$!
+            * Misalkan $t$ adalah waktu saat bertemu (dihitung dari $t=0$).
+            * Posisi Kendaraan 1: $P_1(t) = v_1 \times \max(0, t - \text{start\_time}_1)$
+            * Posisi Kendaraan 2: $P_2(t) = \text{initial\_distance} - (v_2 \times \max(0, t - \text{start\_time}_2))$
+            * Saat bertemu, posisi mereka sama: $P_1(t) = P_2(t)$.
+            * $v_1 \times (t - \text{start\_time}_1) = \text{initial\_distance} - v_2 \times (t - \text{start\_time}_2)$
+            * Coba substitusikan dan selesaikan untuk $t$!
         """)
 
     st.markdown("---")
