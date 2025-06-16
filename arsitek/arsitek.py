@@ -163,12 +163,11 @@ st.markdown("""
 
 **Konsep Kunci:** Ini adalah aplikasi dari fungsi **tangen (tangent)** dalam trigonometri, di mana:
 $$
-\text{tan(sudut elevasi)} = \frac{\text{Tinggi Gedung}}{\text{Panjang Bayangan}}
+\\tan(\\text{sudut elevasi}) = \\frac{\\text{Tinggi Gedung}}{\\text{Panjang Bayangan}}
 $$
 Atau, jika kamu ingin mencari panjang bayangan:
 $$
-\text{Panjang Bayangan} = \frac{\text{Tinggi Gedung}}{\text{tan(sudut elevasi)}}
+\\text{Panjang Bayangan} = \\frac{\\text{Tinggi Gedung}}{\\tan(\\text{sudut elevasi})}
 $$
 """)
-
 st.info("Selamat bereksperimen dan temukan rahasia di balik bayangan!")
