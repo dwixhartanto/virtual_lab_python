@@ -48,7 +48,7 @@ sudut_elevasi_derajat = st.sidebar.slider(
 st.sidebar.markdown("""
 **Petunjuk Tambahan:**
 * **Sudut Elevasi:** Adalah sudut antara sinar matahari dan permukaan tanah.
-#* **Tan(Sudut) = Tinggi / Bayangan**
+
 """)
 
 # --- Perhitungan Panjang Bayangan ---
