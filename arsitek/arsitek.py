@@ -105,11 +105,11 @@ if menu_selection == "Simulasi":
     circle_radius = min(panjang_bayangan, tinggi_gedung) * 0.1
     if panjang_bayangan > 0: # Hanya gambar jika ada bayangan
         ax.add_patch(plt.Circle((0, 0), circle_radius, color='gray', alpha=0.3))
-        # Teks sudut
-        ax.text(circle_radius * math.cos(math.radians(sudut_elevasi_derajat/2)),
-                circle_radius * math.sin(math.radians(sudut_elevasi_derajat/2)),
+        # Teks sudut - Disesuaikan agar posisinya lebih baik
+        ax.text(circle_radius * 1.3 * math.cos(math.radians(sudut_elevasi_derajat / 2)),
+                circle_radius * 1.3 * math.sin(math.radians(sudut_elevasi_derajat / 2)),
                 f'{sudut_elevasi_derajat:.1f}°',
-                color='black', ha='left', va='bottom')
+                color='black', ha='center', va='center')
 
     # Pengaturan plot
     ax.set_aspect('equal', adjustable='box')
@@ -146,7 +146,7 @@ if menu_selection == "Simulasi":
 
 
 elif menu_selection == "Panduan Penemuan":
-    st.subheader("Panduan Penemuan ")
+    st.subheader("Panduan Penemuan")
     st.markdown("""
     Selamat datang di bagian Panduan Penemuan! Di sini kamu bisa belajar lebih dalam tentang konsep matematika di balik pembentukan bayangan.
 
@@ -167,8 +167,6 @@ elif menu_selection == "Panduan Penemuan":
 
     ---
 
-  
     Ini adalah dasar dari banyak perhitungan dalam arsitektur, teknik sipil, dan astronomi!
     """)
     st.info("Selamat bereksperimen dan temukan rahasia di balik bayangan!")
-
