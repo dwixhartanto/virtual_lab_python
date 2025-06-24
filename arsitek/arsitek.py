@@ -12,7 +12,7 @@ st.set_page_config(
 )
 
 # --- Judul dan Deskripsi Aplikasi ---
-st.title("☀️ Laboratorium Bayangan Arsitek Mini")
+st.header("☀️ Laboratorium Bayangan Arsitek Mini")
 st.markdown("""
 Selamat datang di Lab Bayangan Arsitek Mini! Di sini kamu akan berperan sebagai arsitek yang harus memahami bagaimana bayangan terbentuk.
 Ubahlah **Tinggi Gedung** dan **Sudut Elevasi Matahari**, lalu amati **Panjang Bayangan** yang dihasilkan.
