@@ -97,27 +97,25 @@ if menu_selection == "Simulasi":
     ax.plot([0, panjang_bayangan], [tinggi_gedung, 0], color='green', linestyle='--', label='Sinar Matahari')
 
     # Teks label untuk sisi
+    # Penempatan teks untuk panjang bayangan
     ax.text(panjang_bayangan / 2, -1, f'{panjang_bayangan:.2f} m', ha='center', va='top', color='blue')
+    # Penempatan teks untuk tinggi gedung
     ax.text(-1, tinggi_gedung / 2, f'{tinggi_gedung:.1f} m', ha='right', va='center', color='red')
 
-    # Sudut elevasi (arc) and text
-    # The angle of elevation is at the *tip of the shadow* (panjang_bayangan, 0).
-    # This is consistent with tan(angle) = Opposite (tinggi_gedung) / Adjacent (panjang_bayangan)
+    # Sudut elevasi (busur dan teks)
+    # Sudut elevasi berada di titik (0,0) yaitu pertemuan dasar gedung dan awal bayangan.
     circle_radius = min(panjang_bayangan, tinggi_gedung) * 0.1
-    if panjang_bayangan > 0: # Only draw if there's a shadow
-        # Arc for the angle of elevation at (panjang_bayangan, 0)
-        # The angle is measured from the horizontal (x-axis) upwards towards the hypotenuse.
-        # The arc should go from 180 degrees (left horizontal) to (180 - sudut_elevasi_derajat).
-        ax.add_patch(plt.Arc((panjang_bayangan, 0), width=circle_radius*2, height=circle_radius*2,
-                             angle=0, theta1=180 - sudut_elevasi_derajat, theta2=180, color='gray', alpha=0.3))
+    if panjang_bayangan > 0: # Hanya gambar jika ada bayangan
+        # Busur untuk sudut elevasi di (0,0)
+        # Sudut diukur dari horizontal positif (sumbu x) ke atas menuju hipotenusa.
+        ax.add_patch(plt.Arc((0, 0), width=circle_radius*2, height=circle_radius*2,
+                             angle=0, theta1=0, theta2=sudut_elevasi_derajat, color='gray', alpha=0.3))
 
-        # Text for angle
-        # Place text slightly inward from the corner (panjang_bayangan, 0) along the bisector of the angle.
-        # The angle is formed between the horizontal line to the left and the hypotenuse.
-        # The bisector angle relative to positive x-axis is (180 - sudut_elevasi_derajat / 2).
+        # Teks untuk sudut
+        # Tempatkan teks sedikit ke dalam dari sudut (0,0) di sepanjang garis bagi sudut.
         distance_from_vertex = circle_radius * 0.8
-        angle_for_text_placement = math.radians(180 - (sudut_elevasi_derajat / 2))
-        text_x_pos = panjang_bayangan + distance_from_vertex * math.cos(angle_for_text_placement)
+        angle_for_text_placement = math.radians(sudut_elevasi_derajat / 2)
+        text_x_pos = 0 + distance_from_vertex * math.cos(angle_for_text_placement)
         text_y_pos = 0 + distance_from_vertex * math.sin(angle_for_text_placement)
 
         ax.text(text_x_pos, text_y_pos,
