@@ -146,7 +146,7 @@ if menu_selection == "Simulasi":
 
 
 elif menu_selection == "Panduan Penemuan":
-    st.subheader("Panduan Penemuan dan Konsep Kunci")
+    st.subheader("Panduan Penemuan ")
     st.markdown("""
     Selamat datang di bagian Panduan Penemuan! Di sini kamu bisa belajar lebih dalam tentang konsep matematika di balik pembentukan bayangan.
 
@@ -167,20 +167,7 @@ elif menu_selection == "Panduan Penemuan":
 
     ---
 
-    ### Konsep Kunci: Fungsi Tangen (Tangent) dalam Trigonometri
-
-    Ini adalah aplikasi dari fungsi **tangen (tangent)** dalam trigonometri, di mana:
-
-    $$
-    \\tan(\\text{sudut elevasi}) = \\frac{\\text{Tinggi Gedung}}{\\text{Panjang Bayangan}}
-    $$
-
-    Atau, jika kamu ingin mencari panjang bayangan, rumusnya menjadi:
-
-    $$
-    \\text{Panjang Bayangan} = \\frac{\\text{Tinggi Gedung}}{\\tan(\\text{sudut elevasi})}
-    $$
-
+  
     Ini adalah dasar dari banyak perhitungan dalam arsitektur, teknik sipil, dan astronomi!
     """)
     st.info("Selamat bereksperimen dan temukan rahasia di balik bayangan!")
