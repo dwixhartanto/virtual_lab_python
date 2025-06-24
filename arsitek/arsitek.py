@@ -104,20 +104,20 @@ if menu_selection == "Simulasi":
     ax.text(-1, tinggi_gedung / 2, f'{tinggi_gedung:.1f} m', ha='right', va='center', color='red')
 
     # Sudut elevasi (busur dan teks)
-    # Sudut elevasi berada di titik (0,0) yaitu pertemuan dasar gedung dan awal bayangan.
+    # Sudut elevasi berada di titik (panjang_bayangan, 0) yaitu ujung bayangan.
     circle_radius = min(panjang_bayangan, tinggi_gedung) * 0.1
     if panjang_bayangan > 0: # Hanya gambar jika ada bayangan
-        # Busur untuk sudut elevasi di (0,0)
-        # Sudut diukur dari horizontal positif (sumbu x) ke atas menuju hipotenusa.
-        ax.add_patch(Arc((0, 0), width=circle_radius*2, height=circle_radius*2,
-                             angle=0, theta1=0, theta2=sudut_elevasi_derajat, color='gray', alpha=0.3))
+        # Busur untuk sudut elevasi di (panjang_bayangan, 0)
+        # Sudut diukur dari horizontal (sumbu x negatif dari titik tersebut) ke atas menuju hipotenusa.
+        # Arc ini digambar dari 180 derajat (arah kiri) sampai (180 - sudut_elevasi_derajat)
+        ax.add_patch(Arc((panjang_bayangan, 0), width=circle_radius*2, height=circle_radius*2,
+                             angle=0, theta1=180 - sudut_elevasi_derajat, theta2=180, color='gray', alpha=0.3))
 
         # Teks untuk sudut
-        # Tempatkan teks sedikit ke dalam dari sudut (0,0) di sepanjang garis bagi sudut.
-        # Mengurangi faktor 0.8 menjadi 0.6 agar teks sedikit lebih dekat ke sudut.
-        distance_from_vertex = circle_radius * 0.6
-        angle_for_text_placement = math.radians(sudut_elevasi_derajat / 2)
-        text_x_pos = 0 + distance_from_vertex * math.cos(angle_for_text_placement)
+        # Tempatkan teks sedikit ke dalam dari sudut (panjang_bayangan, 0) di sepanjang garis bagi sudut.
+        distance_from_vertex = circle_radius * 0.8
+        angle_for_text_placement = math.radians(180 - (sudut_elevasi_derajat / 2))
+        text_x_pos = panjang_bayangan + distance_from_vertex * math.cos(angle_for_text_placement)
         text_y_pos = 0 + distance_from_vertex * math.sin(angle_for_text_placement)
 
         ax.text(text_x_pos, text_y_pos,
