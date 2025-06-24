@@ -26,11 +26,13 @@ if 'experiment_data' not in st.session_state:
         columns=['Tinggi Gedung (m)', 'Sudut Elevasi (°)', 'Panjang Bayangan (m)']
     )
 
-# --- Sidebar untuk Navigasi Menu ---
-st.sidebar.header("Navigasi")
-menu_selection = st.sidebar.radio(
+# --- Navigasi Menu (di bagian atas) ---
+st.write("### Pilih Menu:")
+menu_selection = st.radio(
     "Pilih Menu:",
-    ("Simulasi", "Panduan Penemuan")
+    ("Simulasi", "Panduan Penemuan"),
+    horizontal=True, # Menampilkan opsi secara horizontal
+    label_visibility="collapsed" # Menyembunyikan label radio default
 )
 
 # --- Konten berdasarkan Menu yang Dipilih ---
@@ -42,9 +44,9 @@ if menu_selection == "Simulasi":
     Coba catat datamu dan temukan polanya!
     """)
 
-    # --- Kontrol Interaktif ---
-    st.sidebar.header("Pengaturan Simulasi")
-    tinggi_gedung = st.sidebar.slider(
+    # --- Kontrol Interaktif (Sekarang di kolom utama karena tidak ada sidebar) ---
+    st.header("Pengaturan Simulasi")
+    tinggi_gedung = st.slider(
         "1. Tinggi Gedung (meter)",
         min_value=1.0,
         max_value=50.0,
@@ -53,7 +55,7 @@ if menu_selection == "Simulasi":
         help="Geser untuk mengubah tinggi gedung yang ingin kamu simulasikan."
     )
 
-    sudut_elevasi_derajat = st.sidebar.slider(
+    sudut_elevasi_derajat = st.slider(
         "2. Sudut Elevasi Matahari (derajat)",
         min_value=1.0, # Tidak bisa 0 karena tan(0) tidak terdefinisi (bayangan tak hingga)
         max_value=89.0, # Tidak bisa 90 karena tan(90) tidak terdefinisi (bayangan nol)
@@ -62,7 +64,7 @@ if menu_selection == "Simulasi":
         help="Geser untuk mengubah sudut matahari dari cakrawala. Semakin tinggi sudut, semakin tinggi matahari di langit."
     )
 
-    st.sidebar.markdown("""
+    st.markdown("""
     **Petunjuk Tambahan:**
     * **Sudut Elevasi:** Adalah sudut antara sinar matahari dan permukaan tanah.
     """)
@@ -153,7 +155,7 @@ if menu_selection == "Simulasi":
     if not st.session_state.experiment_data.empty:
         st.dataframe(st.session_state.experiment_data)
         if st.button("Hapus Semua Data Eksperimen"):
-            st.session_state.experiment_data = pd.DataFrame(columns=['Tinggi Gedung (m)', 'Sudut Elevasi (°)', 'Panjang Bayangan (m)'])
+            st.session_session.experiment_data = pd.DataFrame(columns=['Tinggi Gedung (m)', 'Sudut Elevasi (°)', 'Panjang Bayangan (m)'])
             st.warning("Semua data eksperimen telah dihapus.")
     else:
         st.info("Belum ada data eksperimen. Lakukan simulasi dan klik 'Tambahkan ke Data Eksperimen'.")
