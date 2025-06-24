@@ -44,7 +44,7 @@ if menu_selection == "Simulasi":
     Coba catat datamu dan temukan polanya!
     """)
 
-    # --- Kontrol Interaktif (Sekarang di kolom utama karena tidak ada sidebar) ---
+    # --- Kontrol Interaktif (Sekarang di kolom utama) ---
     st.header("Pengaturan Simulasi")
     tinggi_gedung = st.slider(
         "1. Tinggi Gedung (meter)",
@@ -155,7 +155,7 @@ if menu_selection == "Simulasi":
     if not st.session_state.experiment_data.empty:
         st.dataframe(st.session_state.experiment_data)
         if st.button("Hapus Semua Data Eksperimen"):
-            st.session_session.experiment_data = pd.DataFrame(columns=['Tinggi Gedung (m)', 'Sudut Elevasi (°)', 'Panjang Bayangan (m)'])
+            st.session_state.experiment_data = pd.DataFrame(columns=['Tinggi Gedung (m)', 'Sudut Elevasi (°)', 'Panjang Bayangan (m)'])
             st.warning("Semua data eksperimen telah dihapus.")
     else:
         st.info("Belum ada data eksperimen. Lakukan simulasi dan klik 'Tambahkan ke Data Eksperimen'.")
