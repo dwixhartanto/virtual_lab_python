@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 import pandas as pd
+from matplotlib.patches import Arc # Import Arc dari matplotlib.patches
 
 # --- Konfigurasi Halaman Streamlit ---
 st.set_page_config(
@@ -108,7 +109,7 @@ if menu_selection == "Simulasi":
     if panjang_bayangan > 0: # Hanya gambar jika ada bayangan
         # Busur untuk sudut elevasi di (0,0)
         # Sudut diukur dari horizontal positif (sumbu x) ke atas menuju hipotenusa.
-        ax.add_patch(plt.Arc((0, 0), width=circle_radius*2, height=circle_radius*2,
+        ax.add_patch(Arc((0, 0), width=circle_radius*2, height=circle_radius*2,
                              angle=0, theta1=0, theta2=sudut_elevasi_derajat, color='gray', alpha=0.3))
 
         # Teks untuk sudut
