@@ -108,41 +108,7 @@ ax.legend()
 plt.tight_layout() # Untuk penyesuaian layout otomatis
 st.pyplot(fig)
 
-st.divider()
 
-# --- Bagian Eksperimen dan Pencatatan Data ---
-st.subheader("Tabel Data Eksperimen")
-st.write("Catat hasil simulasimu di sini untuk menemukan pola!")
-
-col1, col2 = st.columns([1, 1])
-with col1:
-    if st.button("Tambahkan Data ke Tabel", help="Klik untuk menyimpan data simulasi saat ini ke tabel di bawah."):
-        new_data = {
-            'Tinggi Gedung (m)': tinggi_gedung,
-            'Sudut Elevasi (°)': sudut_elevasi_derajat,
-            'Panjang Bayangan (m)': panjang_bayangan if panjang_bayangan != float('inf') else 'Tak Hingga'
-        }
-        # Cek apakah data sudah ada untuk menghindari duplikasi saat di-refresh
-        existing_rows = st.session_state.experiment_data[
-            (st.session_state.experiment_data['Tinggi Gedung (m)'] == new_data['Tinggi Gedung (m)']) &
-            (st.session_state.experiment_data['Sudut Elevasi (°)'] == new_data['Sudut Elevasi (°)'])
-        ]
-        if existing_rows.empty:
-            st.session_state.experiment_data = pd.concat(
-                [st.session_state.experiment_data, pd.DataFrame([new_data])],
-                ignore_index=True
-            )
-            st.success("Data berhasil ditambahkan!")
-        else:
-            st.warning("Data dengan Tinggi Gedung dan Sudut Elevasi yang sama sudah ada.")
-
-with col2:
-    if st.button("Hapus Semua Data", help="Klik untuk menghapus semua data di tabel ini."):
-        st.session_state.experiment_data = pd.DataFrame(columns=['Tinggi Gedung (m)', 'Sudut Elevasi (°)', 'Panjang Bayangan (m)'])
-        st.info("Semua data telah dihapus.")
-
-# Tampilkan tabel data
-st.dataframe(st.session_state.experiment_data, use_container_width=True)
 
 st.divider()
 
