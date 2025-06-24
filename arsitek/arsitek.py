@@ -113,7 +113,8 @@ if menu_selection == "Simulasi":
 
         # Teks untuk sudut
         # Tempatkan teks sedikit ke dalam dari sudut (0,0) di sepanjang garis bagi sudut.
-        distance_from_vertex = circle_radius * 0.8
+        # Mengurangi faktor 0.8 menjadi 0.6 agar teks sedikit lebih dekat ke sudut.
+        distance_from_vertex = circle_radius * 0.6
         angle_for_text_placement = math.radians(sudut_elevasi_derajat / 2)
         text_x_pos = 0 + distance_from_vertex * math.cos(angle_for_text_placement)
         text_y_pos = 0 + distance_from_vertex * math.sin(angle_for_text_placement)
