@@ -81,4 +81,4 @@ if st.button("Konversi"):
         st.success(f"Hasil konversi: {temperature:.2f} {unit_input} = **{result:.2f} {unit_result}**")
 
 st.markdown("---")
-st.info("Aplikasi ini dibuat menggunakan Streamlit oleh programmer Python Anda.")
+#st.info("Aplikasi ini dibuat menggunakan Streamlit oleh programmer Python Anda.")
