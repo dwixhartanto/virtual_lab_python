@@ -25,22 +25,21 @@ def tentukan_nilai(nilai):
 # Judul Aplikasi
 st.title("Aplikasi Penentuan Predikat Nilai")
 
-# Input Pengguna menggunakan slider Streamlit untuk nilai float
-# Batasi rentang input dari -10 hingga 110 (untuk menguji validasi)
-nilai_input = st.slider(
-    "Masukkan nilai Anda:", 
-    min_value=-10.0, 
-    max_value=110.0, 
-    value=50.0, # Nilai default
-    step=0.1, 
-    format="%.1f"
-)
+# Input Pengguna menggunakan Textbox
+nilai_str = st.text_input("Masukkan nilai Anda (contoh: 85.5):", value="50.0")
 
 # Tombol untuk menjalankan fungsi
 if st.button("Tentukan Predikat"):
-    hasil = tentukan_nilai(nilai_input)
-    st.markdown(f"**Hasil:** {hasil}")
-
-# Anda juga bisa menampilkan hasil secara dinamis tanpa tombol
-# hasil = tentukan_nilai(nilai_input)
-# st.markdown(f"**Hasil (Otomatis):** {hasil}")
+    try:
+        # Konversi input string (dari textbox) ke float
+        nilai_input = float(nilai_str)
+        
+        # Panggil fungsi penentuan nilai
+        hasil = tentukan_nilai(nilai_input)
+        
+        # Tampilkan hasil
+        st.markdown(f"**Hasil:** {hasil}")
+        
+    except ValueError:
+        # Tangani jika input bukan angka
+        st.error("Input yang Anda masukkan **bukan angka**; Mohon masukkan nilai numerik yang valid;")
