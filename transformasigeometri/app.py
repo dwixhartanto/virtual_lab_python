@@ -21,9 +21,9 @@ SHAPES = {
 
 # --- Inisialisasi Session State Default (PENTING untuk sinkronisasi) ---
 if 'shape_select' not in st.session_state:
-    st.session_state.shape_select = list(SHAPES.keys())[0]
+    st.session_state.shape_select = list(SHAPES.keys())[0] 
 if 'titik_hasil_matrix' not in st.session_state:
-    st.session_state.titik_hasil_matrix = SHAPES[list(SHAPES.keys())[0]] # Awal
+    st.session_state.titik_hasil_matrix = SHAPES[list(SHAPES.keys())[0]]
 if 'active_transform_name' not in st.session_state:
     st.session_state.active_transform_name = "Translasi"
 
@@ -34,32 +34,25 @@ if 'ref_pilih' not in st.session_state: st.session_state.ref_pilih = "Sumbu X ($
 if 'rot_sudut' not in st.session_state: st.session_state.rot_sudut = 90
 if 'dil_k' not in st.session_state: st.session_state.dil_k = 1.5
 
-
 # --- Fungsi Plotting (Tetap) ---
 def plot_transformasi(titik_awal_matrix, titik_hasil_matrix, judul):
     fig, ax = plt.subplots(figsize=(6, 6))
-
     def close_polygon(matrix):
         return np.hstack([matrix, matrix[:, 0:1]])
-
     all_points = np.hstack([titik_awal_matrix, titik_hasil_matrix])
     max_abs = np.max(np.abs(all_points))
     buffer = max(5, max_abs + 2) 
     X_batas = [-buffer, buffer]
     Y_batas = [-buffer, buffer]
-
     awal_closed = close_polygon(titik_awal_matrix)
     ax.plot(awal_closed[0, :], awal_closed[1, :], 'b--', linewidth=2, alpha=0.6, label='Bentuk Awal')
     ax.plot(titik_awal_matrix[0, :], titik_awal_matrix[1, :], 'bo', markersize=6)
-
     hasil_closed = close_polygon(titik_hasil_matrix)
     ax.plot(hasil_closed[0, :], hasil_closed[1, :], 'r-', linewidth=2, label='Bentuk Hasil')
     ax.plot(titik_hasil_matrix[0, :], titik_hasil_matrix[1, :], 'ro', markersize=6)
-
     ax.grid(True, linestyle='--')
     ax.axhline(0, color='black', linewidth=0.5)
     ax.axvline(0, color='black', linewidth=0.5)
-
     ax.set_xlim(X_batas[0], X_batas[1])
     ax.set_ylim(Y_batas[0], Y_batas[1])
     ax.set_xlabel("Sumbu X")
@@ -70,21 +63,17 @@ def plot_transformasi(titik_awal_matrix, titik_hasil_matrix, judul):
     st.pyplot(fig)
     plt.close(fig)
 
-# --- Fungsi Inti Transformasi ---
+# --- Fungsi Inti Transformasi (Tetap) ---
 def perform_transformasi(titik_awal_matrix, active_transform):
-    # Logika perhitungan sama, membaca dari st.session_state
-    
     if active_transform == "Translasi":
         a = st.session_state.a_t
         b = st.session_state.b_t
         matriks_translasi = np.array([[a], [b]])
         return titik_awal_matrix + matriks_translasi
-
     elif active_transform == "Refleksi":
         pilihan_refleksi = st.session_state.ref_pilih
         if pilihan_refleksi == "Sumbu X ($y=0$)":
             matriks_transformasi = np.array([[1, 0], [0, -1]])
-        # ... (Logika matriks refleksi lainnya)
         elif pilihan_refleksi == "Sumbu Y ($x=0$)":
             matriks_transformasi = np.array([[-1, 0], [0, 1]])
         elif pilihan_refleksi == "Garis $y=x$":
@@ -92,7 +81,6 @@ def perform_transformasi(titik_awal_matrix, active_transform):
         elif pilihan_refleksi == "Garis $y=-x$":
             matriks_transformasi = np.array([[0, -1], [-1, 0]])
         return matriks_transformasi @ titik_awal_matrix
-
     elif active_transform == "Rotasi":
         sudut_derajat = st.session_state.rot_sudut
         sudut_rad = np.deg2rad(sudut_derajat)
@@ -104,12 +92,10 @@ def perform_transformasi(titik_awal_matrix, active_transform):
         ])
         titik_hasil_matrix_mentah = matriks_transformasi @ titik_awal_matrix
         return np.round(titik_hasil_matrix_mentah, 2)
-
     elif active_transform == "Dilatasi":
         k = st.session_state.dil_k
         matriks_transformasi = np.array([[k, 0], [0, k]])
         return matriks_transformasi @ titik_awal_matrix
-    
     return titik_awal_matrix
 
 # --- Callback untuk sinkronisasi ---
@@ -120,7 +106,7 @@ def update_result_matrix():
     st.session_state.titik_hasil_matrix = perform_transformasi(current_shape, current_transform)
 
 def set_active_transform_name(name):
-    # Callback ini dipanggil oleh st.button (di dalam tab) untuk mengunci nama transformasi aktif
+    # Callback ini dipanggil oleh st.button untuk mengunci nama transformasi aktif
     st.session_state.active_transform_name = name
     update_result_matrix() # Update langsung setelah nama berubah
 
@@ -131,7 +117,7 @@ pilihan_bentuk = st.selectbox(
     "Bangun Datar:",
     list(SHAPES.keys()),
     key='shape_select', 
-    on_change=update_result_matrix # Panggil fungsi update saat shape berubah
+    on_change=update_result_matrix
 )
 titik_awal_matrix = SHAPES[pilihan_bentuk]
 
@@ -149,14 +135,14 @@ with col_input:
     st.header("2. Kontrol Transformasi")
     
     tab_titles = ["Translasi", "Refleksi", "Rotasi", "Dilatasi"]
-    # Hapus key untuk menghindari TypeError
+    # FIX: Hapus parameter key= pada st.tabs
     tab_objects = st.tabs(tab_titles) 
 
     # --- TAB TRANSLASI ---
     with tab_objects[0]: 
-        # Gunakan button/callback untuk mengunci nama transformasi
         st.button("Aktifkan Translasi", key="btn_translasi", on_click=set_active_transform_name, args=("Translasi",))
         st.markdown("**Translasi** (Pergeseran): $P(x, y) \\to P'(x+a, y+b)$")
+        # FIX: Hapus '0.1' yang tidak perlu dan gunakan keyword 'step' jika perlu
         st.slider("Vektor Translasi 'a' (Horizontal)", -5, 5, value=st.session_state.a_t, key='a_t', on_change=update_result_matrix)
         st.slider("Vektor Translasi 'b' (Vertikal)", -5, 5, value=st.session_state.b_t, key='b_t', on_change=update_result_matrix)
         st.subheader("Rumus")
@@ -172,7 +158,6 @@ with col_input:
             key='ref_pilih', on_change=update_result_matrix
         )
         st.subheader("Rumus")
-        # ... (Matriks display sama) ...
         matriks_transformasi = np.array([[1, 0], [0, 1]])
         if pilihan_refleksi == "Sumbu Y ($x=0$)": matriks_transformasi = np.array([[-1, 0], [0, 1]])
         elif pilihan_refleksi == "Garis $y=x$": matriks_transformasi = np.array([[0, 1], [1, 0]])
@@ -184,9 +169,9 @@ with col_input:
     with tab_objects[2]:
         st.button("Aktifkan Rotasi", key="btn_rotasi", on_click=set_active_transform_name, args=("Rotasi",))
         st.markdown("**Rotasi** (Perputaran): Memutar bentuk terhadap titik pusat $(0,0)$.")
+        # FIX: Hapus '90' pada posisi value jika sudah ada value=st.session_state.rot_sudut
         st.slider("Sudut Rotasi (Derajat)", -360, 360, value=st.session_state.rot_sudut, key='rot_sudut', on_change=update_result_matrix)
         st.subheader("Rumus")
-        # ... (Rumus display sama) ...
         sudut_derajat = st.session_state.rot_sudut
         sudut_rad = np.deg2rad(sudut_derajat)
         cos_theta = np.cos(sudut_rad)
@@ -199,16 +184,17 @@ with col_input:
     with tab_objects[3]:
         st.button("Aktifkan Dilatasi", key="btn_dilatasi", on_click=set_active_transform_name, args=("Dilatasi",))
         st.markdown("**Dilatasi** (Penskalaan): Memperbesar atau memperkecil bentuk terhadap titik pusat $(0,0)$.")
-        st.slider("Faktor Skala (k)", -3.0, 3.0, 0.1, value=st.session_state.dil_k, key='dil_k', on_change=update_result_matrix)
+        # FIX: Gunakan keyword step=0.1 agar tidak double argument
+        st.slider("Faktor Skala (k)", -3.0, 3.0, value=st.session_state.dil_k, step=0.1, key='dil_k', on_change=update_result_matrix)
         st.subheader("Rumus")
-        # ... (Rumus display sama) ...
         k = st.session_state.dil_k
         st.markdown(f"**Faktor Skala:** $k={k}$.")
         st.markdown(f"**Matriks Dilatasi:**")
         st.latex(f"\\text{{Matriks Dilatasi}} = \\begin{{pmatrix}} {k} & 0 \\\\ 0 & {k} \\end{{pmatrix}}")
 
+
 # --- Perhitungan Hasil Akhir ---
-# Ambil hasil dari Session State yang sudah diperbarui oleh callback
+# Ambil hasil dari Session State
 titik_hasil_matrix = st.session_state.titik_hasil_matrix
 transformasi_aktif = st.session_state.active_transform_name
 
@@ -216,8 +202,7 @@ transformasi_aktif = st.session_state.active_transform_name
 with col_output:
     st.header(f"3. Visualisasi Hasil: {transformasi_aktif}")
     
-    # Panggil plot dengan hasil perhitungan terbaru
-    plot_transformasi(titik_awal_matrix, titik_hasil_matrix, f"Transformasi: {transformasi_aktif}")
+    plot_transformasi(titik_awal_matrix, titik_hasil_matrix, f"Transformasi: {transformasi_aktif}") 
 
     st.subheader("Koordinat Hasil")
     
