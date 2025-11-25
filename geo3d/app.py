@@ -115,3 +115,85 @@ def hitung_jarak_titik_titik(p1, p2, s):
     if distance == s:
         jenis = f"Panjang Rusuk ({s})"
     elif distance == s * np.sqrt(2):
+        jenis = f"Diagonal Sisi ({s}\\sqrt{{2}})"
+    elif distance == s * np.sqrt(3):
+        jenis = f"Diagonal Ruang ({s}\\sqrt{{3}})"
+    else:
+        jenis = "Jarak Umum"
+        
+    return distance, jenis
+
+# --- 4. Streamlit UI Layout ---
+
+st.header("Kubus ABCD.EFGH")
+
+# Input Sisi Kubus
+sisi = st.slider("Panjang Sisi Kubus (s)", 2.0, 10.0, 4.0, 0.5)
+
+vertices = get_kubus_vertices(sisi)
+titik_labels = list(vertices.keys())
+
+col_input, col_visual = st.columns([1, 1.5])
+
+# --- Kolom Kiri: Input Perhitungan ---
+with col_input:
+    st.subheader("1. Pilih Perhitungan")
+    mode_perhitungan = st.selectbox(
+        "Mode:",
+        ["Jarak Titik ke Titik", "Jarak Titik ke Garis", "Jarak Titik ke Bidang"]
+    )
+    
+    st.markdown("---")
+    
+    # Jarak Titik ke Titik
+    if mode_perhitungan == "Jarak Titik ke Titik":
+        st.subheader("2. Jarak Titik ke Titik")
+        
+        c1, c2 = st.columns(2)
+        titik_awal = c1.selectbox("Titik Awal", titik_labels, key='p1')
+        titik_akhir = c2.selectbox("Titik Akhir", titik_labels, index=6, key='p2')
+        
+        if titik_awal and titik_akhir:
+            v_awal = vertices[titik_awal]
+            v_akhir = vertices[titik_akhir]
+            
+            jarak, jenis = hitung_jarak_titik_titik(v_awal, v_akhir, sisi)
+            
+            st.markdown("### Hasil")
+            st.info(f"Jenis Jarak: **{jenis}**")
+            st.latex(f"\\text{{Jarak }} {titik_awal}{titik_akhir} = \\sqrt{{({v_akhir[0]}-{v_awal[0]})^2 + ({v_akhir[1]}-{v_awal[1]})^2 + ({v_akhir[2]}-{v_awal[2]})^2}}")
+            st.latex(f"\\text{{Jarak }} {titik_awal}{titik_akhir} = {jarak:.3f}")
+            
+            line_to_highlight = (titik_awal, titik_akhir)
+            highlight_points = [titik_awal, titik_akhir]
+        else:
+            line_to_highlight = None
+            highlight_points = None
+
+    elif mode_perhitungan == "Jarak Titik ke Garis":
+        st.info("Fitur akan segera ditambahkan.")
+        line_to_highlight = None
+        highlight_points = None
+    
+    elif mode_perhitungan == "Jarak Titik ke Bidang":
+        st.info("Fitur akan segera ditambahkan.")
+        line_to_highlight = None
+        highlight_points = None
+
+# --- Kolom Kanan: Visualisasi 3D ---
+with col_visual:
+    st.subheader("Visualisasi 3D Interaktif")
+    
+    # Plot Kubus menggunakan hasil perhitungan dari kolom kiri
+    if 'line_to_highlight' not in locals():
+        line_to_highlight = None
+        highlight_points = None
+        
+    fig = plot_kubus(vertices, sisi, highlight_points=highlight_points, line_coords=line_to_highlight)
+    
+    st.plotly_chart(fig, use_container_width=True)
+    
+    st.caption(f"Kubus ABCD.EFGH dengan sisi = {sisi}")
+
+st.markdown("---")
+st.success("Gunakan mouse Anda untuk memutar, memperbesar/memperkecil, dan menjelajahi objek 3D.")
