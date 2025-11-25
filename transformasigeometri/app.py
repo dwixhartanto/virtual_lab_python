@@ -9,7 +9,8 @@ st.set_page_config(
 )
 
 st.title("📐 Virtual Lab: Transformasi Geometri Bangun Datar")
-# ... (SHAPES dan plot_transformasi tetap sama) ...
+st.markdown("Eksplorasi **Rotasi, Dilatasi, Refleksi, dan Translasi** secara visual pada poligon.")
+
 # --- Definisi Bangun Datar Awal (Matriks 2xN) ---
 SHAPES = {
     "Segitiga Siku-Siku": np.array([[2., 5., 2., 2.], [1., 1., 4., 1.]]),
@@ -18,25 +19,51 @@ SHAPES = {
     "Segi Lima": np.array([[3., 5., 4., 2., 1., 3.], [1., 3., 5., 5., 3., 1.]]),
 }
 
-# Fungsi Plotting (Tetap sama)
+# --- Inisialisasi Session State Default (PENTING untuk sinkronisasi) ---
+# Inisialisasi semua keys yang akan digunakan oleh widget
+if 'shape_select' not in st.session_state:
+    st.session_state.shape_select = list(SHAPES.keys())[0] # Default: Segitiga
+if 'main_tabs' not in st.session_state:
+    st.session_state.main_tabs = "Translasi" # Default: Translasi
+
+# Translasi Defaults
+if 'a_t' not in st.session_state: st.session_state.a_t = 2
+if 'b_t' not in st.session_state: st.session_state.b_t = 1
+
+# Refleksi Defaults
+if 'ref_pilih' not in st.session_state: st.session_state.ref_pilih = "Sumbu X ($y=0$)"
+
+# Rotasi Defaults
+if 'rot_sudut' not in st.session_state: st.session_state.rot_sudut = 90
+
+# Dilatasi Defaults
+if 'dil_k' not in st.session_state: st.session_state.dil_k = 1.5
+
+# --- Fungsi Plotting (Tetap) ---
 def plot_transformasi(titik_awal_matrix, titik_hasil_matrix, judul):
     fig, ax = plt.subplots(figsize=(6, 6))
+
     def close_polygon(matrix):
         return np.hstack([matrix, matrix[:, 0:1]])
+
     all_points = np.hstack([titik_awal_matrix, titik_hasil_matrix])
     max_abs = np.max(np.abs(all_points))
     buffer = max(5, max_abs + 2) 
     X_batas = [-buffer, buffer]
     Y_batas = [-buffer, buffer]
+
     awal_closed = close_polygon(titik_awal_matrix)
     ax.plot(awal_closed[0, :], awal_closed[1, :], 'b--', linewidth=2, alpha=0.6, label='Bentuk Awal')
     ax.plot(titik_awal_matrix[0, :], titik_awal_matrix[1, :], 'bo', markersize=6)
+
     hasil_closed = close_polygon(titik_hasil_matrix)
     ax.plot(hasil_closed[0, :], hasil_closed[1, :], 'r-', linewidth=2, label='Bentuk Hasil')
     ax.plot(titik_hasil_matrix[0, :], titik_hasil_matrix[1, :], 'ro', markersize=6)
+
     ax.grid(True, linestyle='--')
     ax.axhline(0, color='black', linewidth=0.5)
     ax.axvline(0, color='black', linewidth=0.5)
+
     ax.set_xlim(X_batas[0], X_batas[1])
     ax.set_ylim(Y_batas[0], Y_batas[1])
     ax.set_xlabel("Sumbu X")
@@ -47,20 +74,18 @@ def plot_transformasi(titik_awal_matrix, titik_hasil_matrix, judul):
     st.pyplot(fig)
     plt.close(fig)
 
-
 # --- Fungsi Inti Transformasi ---
-# Fungsi ini sekarang membaca semua state dari widget yang terpisah (dengan keys)
 def perform_transformasi(titik_awal_matrix, active_transform):
-    # Ambil parameter dari session state
+    # Semua nilai widget dijamin ada di st.session_state
+    
     if active_transform == "Translasi":
-        a = st.session_state.get('a_t', 2)
-        b = st.session_state.get('b_t', 1)
+        a = st.session_state.a_t
+        b = st.session_state.b_t
         matriks_translasi = np.array([[a], [b]])
         return titik_awal_matrix + matriks_translasi
 
     elif active_transform == "Refleksi":
-        # Ambil state dari widget (selectbox)
-        pilihan_refleksi = st.session_state.get('ref_pilih', "Sumbu X ($y=0$)")
+        pilihan_refleksi = st.session_state.ref_pilih
         if pilihan_refleksi == "Sumbu X ($y=0$)":
             matriks_transformasi = np.array([[1, 0], [0, -1]])
         elif pilihan_refleksi == "Sumbu Y ($x=0$)":
@@ -72,8 +97,7 @@ def perform_transformasi(titik_awal_matrix, active_transform):
         return matriks_transformasi @ titik_awal_matrix
 
     elif active_transform == "Rotasi":
-        # Ambil state dari widget (slider)
-        sudut_derajat = st.session_state.get('rot_sudut', 90)
+        sudut_derajat = st.session_state.rot_sudut
         sudut_rad = np.deg2rad(sudut_derajat)
         cos_theta = np.cos(sudut_rad)
         sin_theta = np.sin(sudut_rad)
@@ -85,24 +109,19 @@ def perform_transformasi(titik_awal_matrix, active_transform):
         return np.round(titik_hasil_matrix_mentah, 2)
 
     elif active_transform == "Dilatasi":
-        # Ambil state dari widget (slider)
-        k = st.session_state.get('dil_k', 1.5)
+        k = st.session_state.dil_k
         matriks_transformasi = np.array([[k, 0], [0, k]])
         return matriks_transformasi @ titik_awal_matrix
     
     return titik_awal_matrix
 
-
-# --- Inisialisasi Session State & Callback Sederhana ---
-# Kita tidak perlu lagi session state untuk titik_hasil_matrix, cukup hitung di akhir
-
-# Callback untuk pembaruan ketika shape berubah
-def on_shape_change():
-    # Ketika shape berubah, kita akan memicu run ulang, dan hitungan akan dilakukan di akhir skrip
-    pass
-
 # --- 1. Konfigurasi Awal ---
 st.subheader("1. Pilih Bangun Datar Awal")
+
+# on_change tidak perlu berbuat apa-apa selain memicu rerun
+def on_shape_change():
+    pass
+
 pilihan_bentuk = st.selectbox(
     "Bangun Datar:",
     list(SHAPES.keys()),
@@ -131,10 +150,11 @@ with col_input:
     # --- TAB TRANSLASI ---
     with tab_objects[0]: 
         st.markdown("**Translasi** (Pergeseran): $P(x, y) \\to P'(x+a, y+b)$")
-        a = st.slider("Vektor Translasi 'a' (Horizontal)", -5, 5, 2, key='a_t')
-        b = st.slider("Vektor Translasi 'b' (Vertikal)", -5, 5, 1, key='b_t')
+        # Nilai awal diambil dari session state yang sudah diinisialisasi
+        st.slider("Vektor Translasi 'a' (Horizontal)", -5, 5, value=st.session_state.a_t, key='a_t')
+        st.slider("Vektor Translasi 'b' (Vertikal)", -5, 5, value=st.session_state.b_t, key='b_t')
         st.subheader("Rumus")
-        st.latex(f"\\text{{Matriks Hasil}} = \\text{{Matriks Awal}} + \\begin{{pmatrix}} {a} \\\\ {b} \\end{{pmatrix}}")
+        st.latex(f"\\text{{Matriks Hasil}} = \\text{{Matriks Awal}} + \\begin{{pmatrix}} {st.session_state.a_t} \\\\ {st.session_state.b_t} \\end{{pmatrix}}")
 
     # --- TAB REFLEKSI ---
     with tab_objects[1]:
@@ -156,8 +176,9 @@ with col_input:
     # --- TAB ROTASI ---
     with tab_objects[2]:
         st.markdown("**Rotasi** (Perputaran): Memutar bentuk terhadap titik pusat $(0,0)$.")
-        sudut_derajat = st.slider("Sudut Rotasi (Derajat)", -360, 360, 90, key='rot_sudut')
+        st.slider("Sudut Rotasi (Derajat)", -360, 360, value=st.session_state.rot_sudut, key='rot_sudut')
         st.subheader("Rumus")
+        sudut_derajat = st.session_state.rot_sudut
         sudut_rad = np.deg2rad(sudut_derajat)
         cos_theta = np.cos(sudut_rad)
         sin_theta = np.sin(sudut_rad)
@@ -168,15 +189,16 @@ with col_input:
     # --- TAB DILATASI ---
     with tab_objects[3]:
         st.markdown("**Dilatasi** (Penskalaan): Memperbesar atau memperkecil bentuk terhadap titik pusat $(0,0)$.")
-        k = st.slider("Faktor Skala (k)", -3.0, 3.0, 1.5, 0.1, key='dil_k')
+        st.slider("Faktor Skala (k)", -3.0, 3.0, 0.1, value=st.session_state.dil_k, key='dil_k')
         st.subheader("Rumus")
+        k = st.session_state.dil_k
         st.markdown(f"**Faktor Skala:** $k={k}$.")
         st.markdown(f"**Matriks Dilatasi:**")
         st.latex(f"\\text{{Matriks Dilatasi}} = \\begin{{pmatrix}} {k} & 0 \\\\ 0 & {k} \\end{{pmatrix}}")
 
 
 # --- Perhitungan Hasil Akhir (Di Luar Kolom Input/Tab) ---
-# Dapatkan nama tab yang sedang aktif
+# Dapatkan nama tab yang sedang aktif (yang terakhir diinteraksi)
 transformasi_aktif = st.session_state.main_tabs 
 # Lakukan perhitungan menggunakan fungsi yang membaca semua state widget
 titik_hasil_matrix = perform_transformasi(titik_awal_matrix, transformasi_aktif)
